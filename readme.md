@@ -4,3 +4,5 @@ NTR_IPL_font_s.NFTR
 SHA-1 8818EC8D3C6406B170DF19DA1DE2A6D047F4C1D5
 
 Keep in mind the code here is also probably really bad.
+
+Requires ndstextgen, tkinter, PIL

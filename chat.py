@@ -3,7 +3,6 @@ import ndstextgen
 import tkinter
 import colorsys
 import math
-import threading
 from tkinter import *
 from PIL import Image,ImageTk
 
