@@ -3,7 +3,6 @@ import ndstextgen
 import tkinter
 import colorsys
 import math
-import threading
 from tkinter import *
 from PIL import Image,ImageTk
 
@@ -12,35 +11,9 @@ allMsgIDs = {0: None}
 lastProcessedID = 0
 msgLabel = [None]
 
-# load all images only once
-msgBoxTop = Image.open("msgTop.png")
-msgBoxTop = msgBoxTop.convert("RGBA")
-msgBoxMiddle = Image.open("msgMiddle.png")
-msgBoxMiddle = msgBoxMiddle.convert("RGBA")
-msgBoxBottom = Image.open("msgBottom.png")
-msgBoxBottom = msgBoxBottom.convert("RGBA")
-userBoxMultiLeft = Image.open("userMultiLeft.png")
-userBoxMultiLeft = userBoxMultiLeft.convert("RGBA")
-userBoxMultiMiddle = Image.open("userMultiMiddle.png")
-userBoxMultiMiddle = userBoxMultiMiddle.convert("RGBA")
-userBoxMultiRight = Image.open("userMultiRight.png")
-userBoxMultiRight = userBoxMultiRight.convert("RGBA")
-userBoxMulti = Image.open("userMulti.png")
-userBoxMulti = userBoxMulti.convert("RGBA") 
-msgBoxSingle = Image.open("msg.png")
-msgBoxSingle = msgBoxSingle.convert("RGBA")
-userBoxSingleLeft = Image.open("userLeft.png")
-userBoxSingleLeft = userBoxSingleLeft.convert("RGBA")
-userBoxSingleMiddle = Image.open("userMiddle.png")
-userBoxSingleMiddle = userBoxSingleMiddle.convert("RGBA")
-userBoxSingleRight = Image.open("userRight.png")
-userBoxSingleRight = userBoxSingleRight.convert("RGBA")
-userBoxSingle = Image.open("user.png")
-userBoxSingle = userBoxSingle.convert("RGBA")
-
-# Function to read textbox and add text   
+# Function to read textbox and add text
 def genImg(userText, color, msgText):
-    # make vars global  
+    # make vars global
     # global msgGen, msgImg, canvas, msgNum, staleMsgNum
     # load & calculate colors
     colorR = int(color[0:2],16)
@@ -57,7 +30,7 @@ def genImg(userText, color, msgText):
         modR = colorsys.hls_to_rgb(colorH, 0.5, 0)[0] * 255
         modG = colorsys.hls_to_rgb(colorH, 0.5, 0)[1] * 255
         modB = colorsys.hls_to_rgb(colorH, 0.5, 0)[2] * 255
-    # load username text    
+    # load username text
     userText = "Îq" + userText
     # generate username image
     userGen = ndstextgen.gen("NTR_IPL_font_s.NFTR", userText, out=os.devnull, spacing=1, color="#010101", encoding="utf_16", no_esc=True)
@@ -76,32 +49,54 @@ def genImg(userText, color, msgText):
     userGen = userGen.crop((11, 0, userGen.width, userGen.height))
     # process all images and assemble message box
     if msgGen.height > 12:
+        msgBoxTop = Image.open("msgTop.png")
+        msgBoxTop = msgBoxTop.convert("RGBA")
+        msgBoxMiddle = Image.open("msgMiddle.png")
+        msgBoxMiddle = msgBoxMiddle.convert("RGBA")
+        msgBoxBottom = Image.open("msgBottom.png")
+        msgBoxBottom = msgBoxBottom.convert("RGBA")
         newMsgBoxH = 22 + (16 * ((math.ceil(msgGen.height / 16) - 1)))
         msgBox = msgBoxMiddle.resize((234, newMsgBoxH), 4)
         msgBox.paste(msgBoxTop, (0, 0))
         msgBox.paste(msgBoxBottom, (0, msgBox.height - 6))
         msgBox.paste(msgGen, (6,4), msgGen)
         if userGen.width > 50:
+            userBoxMultiLeft = Image.open("userMultiLeft.png")
+            userBoxMultiLeft = userBoxMultiLeft.convert("RGBA")
+            userBoxMultiMiddle = Image.open("userMultiMiddle.png")
+            userBoxMultiMiddle = userBoxMultiMiddle.convert("RGBA")
+            userBoxMultiRight = Image.open("userMultiRight.png")
+            userBoxMultiRight = userBoxMultiRight.convert("RGBA")
             newUserBoxW = userGen.width + 13
             userBox = userBoxMultiMiddle.resize((newUserBoxW, 19), 4)
             userBox.paste(userBoxMultiLeft, (0, 0), userBoxMultiLeft)
             userBox.paste(userBoxMultiRight, (newUserBoxW - 6, 0), userBoxMultiRight)
             userBox.paste(userGen, (6, 4), userGen)
         else:
+            userBoxMulti = Image.open("userMulti.png")
+            userBoxMulti = userBoxMulti.convert("RGBA")
             userBoxMulti.paste(userGen, (6, 4), userGen)
             userBox = userBoxMulti
         msgBox.paste(userBox, (0, 0))
     else:
-       
+        msgBoxSingle = Image.open("msg.png")
+        msgBoxSingle = msgBoxSingle.convert("RGBA")
         msgBoxSingle.paste(msgGen, (6, 4), msgGen)
         if userGen.width > 50:
-           
+            userBoxSingleLeft = Image.open("userLeft.png")
+            userBoxSingleLeft = userBoxSingleLeft.convert("RGBA")
+            userBoxSingleMiddle = Image.open("userMiddle.png")
+            userBoxSingleMiddle = userBoxSingleMiddle.convert("RGBA")
+            userBoxSingleRight = Image.open("userRight.png")
+            userBoxSingleRight = userBoxSingleRight.convert("RGBA")
             newUserBoxW = userGen.width + 13
             userBox = userBoxSingleMiddle.resize((newUserBoxW, 22), 4)
             userBox.paste(userBoxSingleLeft, (0, 0))
             userBox.paste(userBoxSingleRight, (newUserBoxW - 6, 0))
             userBox.paste(userGen, (6, 4), userGen)
         else:
+            userBoxSingle = Image.open("user.png")
+            userBoxSingle = userBoxSingle.convert("RGBA")
             userBoxSingle.paste(userGen, (6, 4), userGen)
             userBox = userBoxSingle
         msgBoxSingle.paste(userBox, (0, 0), userBox)
@@ -114,24 +109,23 @@ def genImg(userText, color, msgText):
             elif msgBox.getpixel((i, j)) == (2, 2, 2, 255):
                 msgBox.putpixel((i, j),(round(modR), round(modG), round(modB), 255))
     return msgBox
-    
+
 def addImg(userText, color, msgText, curMsgID):
     msgImg = genImg(userText, color, msgText)
     msgID = {curMsgID + 1: ImageTk.PhotoImage(msgImg)}
     return msgID
-    
+
 def addID(preID, img):
     id = preID + 1
     allMsgIDs.update({id: img})
     return allMsgIDs
-    
+
 def sendFromTextbox():
     global allMsgIDs
     msgBox = addImg(userTextbox.get(), colorTextbox.get(), msgTextbox.get(), getCurID())
     allMsgIDs.update(msgBox)
     chat.update()
-    chat.after(1, drawMsg)
-    
+
 def getCurID():
     return list(allMsgIDs.items())[-1][0]
 
@@ -142,13 +136,13 @@ def drawMsg():
         msgLabel.insert(curID, Label(messageFrame, image=allMsgIDs.get(curID), bd=1, anchor="nw"))
         msgLabel[curID].pack(side="top", anchor="nw")
         # update canvas stuff
-        canvas.update_idletasks() 
+        canvas.update_idletasks()
         canvas.configure(scrollregion = canvas.bbox("all"))
         canvas.yview_moveto(1)
         # update IDs
         lastProcessedID = curID
     chat.after(1, drawMsg)
-    
+
 # window init
 chat=tkinter.Tk()
 chat.title("Twitch Chat")
@@ -191,5 +185,6 @@ msgTextbox.pack()
 gayButton = tkinter.Button(chat, text="Gay", command=sendFromTextbox)
 gayButton.pack()
 
+chat.after(1, drawMsg)
 # tkinter stuff
 chat.mainloop()
